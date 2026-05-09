@@ -13,7 +13,7 @@ let html = `
 
         <select id="countrySelect"></select>
 
-        <input class="amt" type="number" id="fromAmt" value="100">
+        <input class="amt" type="number" id="fromAmt" value="0">
     </div>
 </div>
 
