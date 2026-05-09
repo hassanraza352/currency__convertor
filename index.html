@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Currency </title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #05050a;
+  --surface:   #0e0e1a;
+  --card:      #13131f;
+  --border:    rgba(255,255,255,0.07);
+  --gold:      #d4a843;
+  --gold-lt:   #f0c96a;
+  --gold-glow: rgba(212,168,67,0.15);
+  --text:      #f0eee8;
+  --muted:     #7a7888;
+}
+
+html, body {
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Syne', sans-serif;
+  overflow-x: hidden;
+}
+#countrySelect {
+    width: 150px;   /* jitni chahiye utni width */
+    padding: 5px;
+}
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 15% 20%, rgba(108,92,231,0.13) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 60% at 85% 80%, rgba(212,168,67,0.09) 0%, transparent 60%);
+  pointer-events: none; z-index: 0;
+  animation: bgP 7s ease-in-out infinite alternate;
+}
+@keyframes bgP { from{opacity:.7} to{opacity:1} }
+
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none; z-index: 0;
+}
+
+.wrapper {
+  position: relative; z-index: 1;
+  min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 60px 20px 80px;
+}
+
+/* HEADER */
+.header {
+  text-align: center; margin-bottom: 50px;
+  animation: fadeDown .8s cubic-bezier(.22,1,.36,1) both;
+}
+@keyframes fadeDown {
+  from { opacity:0; transform:translateY(-22px); }
+  to   { opacity:1; transform:none; }
+}
+
+.badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--gold-glow);
+  border: 1px solid rgba(212,168,67,.3);
+  border-radius: 999px; padding: 5px 16px;
+  font-size: 11px; font-family: 'DM Mono', monospace;
+  letter-spacing: .18em; color: var(--gold);
+  text-transform: uppercase; margin-bottom: 20px;
+  animation: pulse 3s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(212,168,67,.2); }
+  50%     { box-shadow: 0 0 0 8px rgba(212,168,67,0); }
+}
+.dot {
+  width:6px; height:6px; border-radius:50%;
+  background:var(--gold);
+  animation: blink 1.5s ease-in-out infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+h1 {
+  font-size: clamp(44px,9vw,80px);
+  font-weight: 800; line-height: 1; letter-spacing: -.03em;
+  background: linear-gradient(135deg,#fff 0%,var(--gold-lt) 50%,var(--gold) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text; margin-bottom: 12px;
+}
+.sub {
+  font-size: 14px; color: var(--muted);
+  font-family: 'DM Mono', monospace; letter-spacing: .06em;
+}
+
+/* TICKER */
+.ticker-wrap {
+  width: 100%; overflow: hidden;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 11px 0; margin-bottom: 44px;
+  animation: fadeIn .8s .3s both;
+}
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+.ticker-track {
+  display: flex;
+  animation: tick 22s linear infinite;
+  white-space: nowrap;
+}
+@keyframes tick { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+.t-item {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 0 24px;
+  font-family: 'DM Mono', monospace; font-size: 12px;
+  color: var(--muted); border-right: 1px solid var(--border);
+}
+.t-code { color: var(--text); font-weight: 500; }
+.t-val  { color: var(--gold); }
+.t-up   { color: #00b894; }
+.t-dn   { color: #e17055; }
+
+/* CARD */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 28px; padding: 38px;
+  width: 100%; max-width: 560px;
+  position: relative; overflow: hidden;
+  animation: fadeUp .9s .2s cubic-bezier(.22,1,.36,1) both;
+}
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(28px); }
+  to   { opacity:1; transform:none; }
+}
+.card::before {
+  content: '';
+  position: absolute; top:0; left:0; right:0; height:1px;
+  background: linear-gradient(90deg,transparent,var(--gold-lt),transparent);
+  opacity: .5;
+}
+#answer{
+  text-align: center;
+  font-size:x-large;
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: 900;
+}
+
+/* BLOCK */
+.block {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px; padding: 20px 22px;
+  transition: border-color .3s;
+}
+.block:focus-within {
+  border-color: rgba(212,168,67,.4);
+  box-shadow: 0 0 0 4px rgba(212,168,67,.06);
+}
+.lbl {
+  font-size: 10px; font-family: 'DM Mono', monospace;
+  letter-spacing: .16em; color: var(--muted);
+  text-transform: uppercase; margin-bottom: 14px;
+}
+.row {
+  display: flex; align-items: center; gap: 12px;
+}
+
+/* FLAG */
+.flag-box {
+  width: 46px; height: 32px;
+  border-radius: 7px; overflow: hidden;
+  border: 1px solid var(--border);
+  flex-shrink: 0; transition: transform .25s;
+}
+.flag-box:hover { transform: scale(1.08); }
+.flag-box img {
+  width: 100%; height: 100%;
+  object-fit: cover; display: block;
+}
+
+/* SELECT */
+select {
+  background: transparent; border: none; outline: none;
+  color: var(--text); font-family: 'Syne', sans-serif;
+  font-size: 20px; font-weight: 700; cursor: pointer;
+  appearance: none; padding: 0; flex-shrink: 0;
+}
+select option { background: #1a1a2e; }
+
+/* INPUT */
+.amt {
+  flex: 1; min-width: 0;
+  background: transparent; border: none; outline: none;
+  font-family: 'DM Mono', monospace;
+  font-size: 30px; font-weight: 500;
+  color: var(--text); text-align: right;
+}
+.amt::placeholder { color: var(--muted); }
+.amt:focus { color: var(--gold-lt); }
+
+/* MID */
+.mid {
+  display: flex; align-items: center; gap: 14px;
+  margin: 20px 0;
+}
+.line {
+  flex: 1; height: 1px;
+  background: linear-gradient(90deg,transparent,var(--border),transparent);
+}
+.arrow {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--surface); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; color: var(--gold); flex-shrink: 0;
+}
+
+/* BUTTON */
+.btn {
+  display: block; width: 100%;
+  margin-top: 26px; padding: 18px;
+  border-radius: 16px; border: none;
+  background: linear-gradient(135deg,var(--gold) 0%,#b8891e 100%);
+  color: #1a0f00;
+  font-family: 'Syne', sans-serif;
+  font-size: 15px; font-weight: 700;
+  letter-spacing: .06em; text-transform: uppercase;
+  cursor: pointer; position: relative; overflow: hidden;
+  transition: transform .25s, box-shadow .25s;
+}
+.btn::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg,rgba(255,255,255,.22) 0%,transparent 55%);
+}
+.btn::after {
+  content: '';
+  position: absolute; top:50%; left:-100%;
+  width: 55%; height: 100%;
+  background: linear-gradient(90deg,transparent,rgba(255,255,255,.28),transparent);
+  transform: translateY(-50%) skewX(-18deg);
+  animation: shine 2.8s ease-in-out infinite;
+}
+@keyframes shine { 0%{left:-100%} 60%,100%{left:160%} }
+.btn:hover { transform:translateY(-2px); box-shadow:0 12px 36px rgba(212,168,67,.38); }
+.btn:active { transform:scale(.98); }
+
+/* FOOTER */
+footer {
+  margin-top: 52px;
+  font-size: 12px; font-family: 'DM Mono', monospace;
+  color: var(--muted); letter-spacing: .08em; text-align: center;
+  animation: fadeIn 1s .8s both;
+}
+footer span { color: var(--gold); }
+
+@media(max-width:480px){
+  .card { padding: 22px 16px; }
+  .amt  { font-size: 22px; }
+  h1    { font-size: 42px; }
+}
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="badge"><div class="dot"></div>Currency Converter</div>
+    <h1>CurrencyX</h1>
+    <p class="sub">// convert · compare · explore</p>
+  </header>
+
+  <!-- TICKER -->
+  <div class="ticker-wrap">
+    <div class="ticker-track">
+      <div class="t-item"><span class="t-code">USD/PKR</span><span class="t-val">278.50</span><span class="t-up">▲ 0.12%</span></div>
+      <div class="t-item"><span class="t-code">EUR/USD</span><span class="t-val">1.0842</span><span class="t-dn">▼ 0.08%</span></div>
+      <div class="t-item"><span class="t-code">GBP/USD</span><span class="t-val">1.2713</span><span class="t-up">▲ 0.21%</span></div>
+      <div class="t-item"><span class="t-code">AED/PKR</span><span class="t-val">75.82</span> <span class="t-up">▲ 0.05%</span></div>
+      <div class="t-item"><span class="t-code">SAR/PKR</span><span class="t-val">74.26</span> <span class="t-dn">▼ 0.03%</span></div>
+      <div class="t-item"><span class="t-code">JPY/USD</span><span class="t-val">0.0067</span><span class="t-dn">▼ 0.14%</span></div>
+      <!-- duplicate for seamless loop -->
+      <div class="t-item"><span class="t-code">USD/PKR</span><span class="t-val">278.50</span><span class="t-up">▲ 0.12%</span></div>
+      <div class="t-item"><span class="t-code">EUR/USD</span><span class="t-val">1.0842</span><span class="t-dn">▼ 0.08%</span></div>
+      <div class="t-item"><span class="t-code">GBP/USD</span><span class="t-val">1.2713</span><span class="t-up">▲ 0.21%</span></div>
+      <div class="t-item"><span class="t-code">AED/PKR</span><span class="t-val">75.82</span> <span class="t-up">▲ 0.05%</span></div>
+      <div class="t-item"><span class="t-code">SAR/PKR</span><span class="t-val">74.26</span> <span class="t-dn">▼ 0.03%</span></div>
+      <div class="t-item"><span class="t-code">JPY/USD</span><span class="t-val">0.0067</span><span class="t-dn">▼ 0.14%</span></div>
+    </div>
+  </div>
+
+  <!-- CONVERTER CARD -->
+  <div class="card">
+
+   
+
+  </div>
+
+  <footer>Made with ♥ by <span>CurrencyX</span> · © 2025</footer>
+
+</div>
+
+
+<script src="javascript.js"></script>
+
+</body>
+</html>
